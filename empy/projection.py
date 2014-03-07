@@ -16,7 +16,7 @@ class Projection:
         v[~sel] = np.nan
         ax.plot(v[...,0], v[...,1], *args, **kwargs)
 
-    def circles(self, vecs, thetas=None, *args, **kwargs):
+    def old_circles(self, vecs, thetas=None, *args, **kwargs):
         if thetas is None:
             thetas = np.zeros(vecs.shape[:-1])
 
@@ -45,6 +45,39 @@ class Projection:
             else:
                 kwargs2 = kwargs
             self.plot( circle(v,t), **kwargs2)
+
+    def circles(self, vecs, thetas=None, *args, **kwargs):
+        if thetas is None:
+            thetas = np.zeros(vecs.shape[:-1])
+       
+        try:
+            kwargs['colors'] = kwargs.pop("c")
+        except KeyError:
+            pass
+
+        try:
+            kwargs["linewidths"] = kwargs.pop("lw")
+        except KeyError:
+            pass
+
+        if kwargs.get("linewidths", None) == "auto":
+            lens = vlen(vecs)
+            minl = np.amin(lens[lens>0])
+            maxl = np.amax(lens)
+            if abs(minl-maxl) < 1e-5:
+                minl *= 0.9
+                maxl *= 1.1
+            kwargs["linewidths"] = np.interp(lens, [minl,maxl], [2, 0.5])
+        
+        lines = []
+        for v,t in zip(vecs, thetas):
+            v,sel = self(circle(v,t))
+            v[~sel] = np.nan
+            lines.append(v)
+
+        ax = self.get_ax(kwargs)
+        from matplotlib.collections import LineCollection
+        ax.add_collection( LineCollection(lines, **kwargs) )
 
     def points(self, vecs, *args, **kwargs):
         kwargs.setdefault("edgecolors", "none")
