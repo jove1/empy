@@ -5,7 +5,8 @@ def simple(v):
 def latex(v):
     pos = "{:g}".format
     neg = r"\bar{{{:g}}}".format
-    return "${0}{1}{2}$".format(*[neg(-x) if x<0 else pos(x) for x in v])
+    #neg = r"\overline{{{:g}}}".format
+    return "$\mathregular{{{0}{1}{2}}}$".format(*[neg(-x) if x<0 else pos(x) for x in v])
 
 def html(v):
     pos = "{:g}".format
