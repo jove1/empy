@@ -8,4 +8,4 @@ import format
 
 def wulf(minor=2, major=10, ax=None):
     """draws Wulf's net"""
-    DoubleTilt().grid(minor, major, ax=ax, proj=stereo)
+    DoubleTilt().grid(minor, major, ax=ax, proj=Stereo())
