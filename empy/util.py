@@ -141,5 +141,19 @@ def vrgb(v):
     rgb /= np.amax(rgb, axis=-1)[...,np.newaxis] 
     return rgb 
 
+class Orient:
+    def __init__(self, rotmatrix=None):
+        if rotmatrix is None:
+            self.rotmatrix = np.diag([1.,1.,1.])
+        else:
+            self.rotmatrix = rotmatrix
 
+    def __call__(self, vec):
+        return np.dot(vec, self.rotmatrix)
 
+    @staticmethod
+    def fit(lst, tr=(None, None)):
+        rot = fit_rot([ 
+            (tr[0](i[0]) if tr[0] is not None else i[0],
+             tr[1](i[1]) if tr[1] is not None else i[1]) for i in lst])
+        return Orient(rot)
