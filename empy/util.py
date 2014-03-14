@@ -96,7 +96,7 @@ def quat_to_rot(v):
     rot[2,0] = 2*( r[1,3] - r[0,2])
     rot[2,1] = 2*( r[2,3] + r[0,1])
     rot[2,2] = +r[3,3] -r[2,2] -r[1,1] +r[0,0]
-    assert abs(np.det(rot)-1) < 1e-5 
+    assert abs(np.linalg.det(rot)-1) < 1e-5 
     return rot
 
 def fit_rot(l):
