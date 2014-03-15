@@ -167,17 +167,8 @@ class Projection:
                 done.add(key)
 
             return self.ax.text(v[...,0], v[...,1], s, *args, **kwargs)
-        
-class Stereo(Projection):
 
-    def __init__(self, **kwargs):
-        Projection.__init__(self, **kwargs)
-        self.ax.axis('off')
-        self.equal_aspect(1.05) 
-
-    def __call__(self, v):
-        return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
-
+ 
 class ThreeD(Projection):
     def __init__(self, **kwargs):
         try:
@@ -202,12 +193,34 @@ class ThreeD(Projection):
 
         return self.ax.scatter(vecs[...,0], vecs[...,1], vecs[...,2], **kwargs)
 
+class Stereo(Projection):
+
+    def __init__(self, **kwargs):
+        Projection.__init__(self, **kwargs)
+        self.ax.axis('off')
+        self.equal_aspect(1.05) 
+
+    def __call__(self, v):
+        return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
+
+
 class Flat(Projection):
+
     def __call__(self, v):
         return v[...,:2], np.abs(v[...,2]) < 1e-5
+
+class Laue(Projection):
+
+    def __init__(self, **kwargs):
+        Projection.__init__(self, **kwargs)
+        self.direction = kwargs.pop("direction", "back")
+
+    def __call__(self, v):
+        # calculate wave vector (wavelength) that diffracts at each recip. space vector
+        k = -vdot(v,v)/2./v[...,2]
+        return v[...,:2]/(k + v[...,2]), k<0 if self.direction == "back" else k>0
 
 class EDiff(Projection):
     pass
 
-class Laue(Projection):
-    pass
+
