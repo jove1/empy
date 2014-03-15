@@ -160,10 +160,22 @@ class Orient:
 
     def __call__(self, vec):
         return np.dot(vec, self.rotmatrix)
+    
+    def normal(self):
+        return self.rotmatrix[:,2]
 
     @staticmethod
-    def fit(lst, tr=(None, None)):
-        rot = fit_rot([ 
-            (tr[0](i[0]) if tr[0] is not None else i[0],
-             tr[1](i[1]) if tr[1] is not None else i[1]) for i in lst])
-        return Orient(rot)
+    def fit(lst):
+        return Orient(fit_rot(lst))
+
+    @staticmethod
+    def from_kik_file(fname):
+        import imp
+        conf = imp.load_source("conf", fname)
+        def tr(x):
+            phi, theta = x[0]/180*pi, x[1]/180*pi
+            return (cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta))
+        import warnings
+        warnings.warn("Assuming cubic crystal")
+        return Orient.fit([ (tr(a), b) for a,b in conf.measurements ])
+
