@@ -18,12 +18,24 @@ class Projection:
             self.ax.set_xlim(-size, size)
             self.ax.set_ylim(-size, size)
     
-    def plot(self, v, *args, **kwargs):
-        v, sel = self(v)
+    def plot(self, vecs, *args, **kwargs):
+        v, sel = self(vecs)
         v[~sel] = np.nan
-        self.ax.plot(v[...,0], v[...,1], *args, **kwargs)
+        return self.ax.plot(v[...,0], v[...,1], *args, **kwargs)
+        
+    def kikuchi(self, vecs, *args, **kwargs):
+        kwargs.setdefault("lw","auto")
+        kwargs.setdefault("c","c")
+        Uacc = kwargs.pop("Uacc", getattr(self, "Uacc", 200e3))
+        from numpy import arcsin
+        return self.circles(vecs, arcsin(vlen(vecs)/2/klen(Uacc)), *args, **kwargs)
+    
+    def circles(self, vecs, thetas=None, *args, **kwargs):
+        return self._circles_line2d(vecs, thetas, *args, **kwargs)
+        # this is *much* slower using pdf and ps backend
+        #return self._circles_linecollection(vecs, thetas=None, *args, **kwargs)
 
-    def old_circles(self, vecs, thetas=None, *args, **kwargs):
+    def _circles_line2d(self, vecs, thetas=None, *args, **kwargs):
         if thetas is None:
             thetas = np.zeros(vecs.shape[:-1])
 
@@ -43,7 +55,7 @@ class Projection:
                 keys.append(k)
                 values.append(v)
                 del kwargs[k]
-
+        ret = []
         for values in zip(vecs, thetas, *values):
             v,t = values[:2]
             if keys:
@@ -51,9 +63,10 @@ class Projection:
                 kwargs2.update(kwargs)
             else:
                 kwargs2 = kwargs
-            self.plot( circle(v,t), **kwargs2)
+            ret.extend( self.plot( circle(v,t), **kwargs2) )
+        return ret
 
-    def circles(self, vecs, thetas=None, *args, **kwargs):
+    def _circles_linecollection(self, vecs, thetas=None, *args, **kwargs):
         if thetas is None:
             thetas = np.zeros(vecs.shape[:-1])
        
