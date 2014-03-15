@@ -19,6 +19,7 @@ def vnorm(x):
 def allv(max=10):
     return np.mgrid[-max:max+1, -max:max+1, -max:max+1].reshape(3,-1).T
 
+from numpy import pi, cos, sin
 # http://physics.nist.gov/cgi-bin/cuu/Value?mec2mev
 m0 = 0.510998910e6 # eV/c^2
 # http://physics.nist.gov/cgi-bin/cuu/Value?hbcmevf
@@ -54,17 +55,17 @@ def tight_borders():
 
 
 def axis_rot(phi, axes=(0,1,2)):
-    phi = np.asarray(phi)/180.*np.pi
+    phi = np.asarray(phi)/180.*pi
     r = np.zeros(phi.shape + (3,3))
     a,b,c = axes
-    r[...,a,a] = r[...,b,b] = np.cos(phi)
+    r[...,a,a] = r[...,b,b] = cos(phi)
     r[...,c,c] = 1.
-    r[...,b,a] = np.sin(phi)
+    r[...,b,a] = sin(phi)
     r[...,a,b] = -r[...,b,a]
     return r
 
 def circle(v, b=0, npoints=500):
-    from numpy import sin, cos, pi, linspace, transpose
+    from numpy import linspace, transpose
 
     r2, r3 = vlen(v[:2]), vlen(v)
     
