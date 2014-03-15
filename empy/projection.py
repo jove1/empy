@@ -3,18 +3,25 @@
 from .util import *
 
 class Projection:
-    def get_ax(self, d):
+    
+    def __init__(self, **kwargs):
         try:
-            return d.pop('ax')
+            self.ax = kwargs.pop('ax')
         except KeyError:
-            return plt.gca()
+            self.ax = plt.gca()
 
+        self.equal_aspect() 
+
+    def equal_aspect(self, size=None):
+        self.ax.set_aspect("equal")
+        if size is not None:
+            self.ax.set_xlim(-size, size)
+            self.ax.set_ylim(-size, size)
+    
     def plot(self, v, *args, **kwargs):
-        ax = self.get_ax(kwargs)
-        
         v, sel = self(v)
         v[~sel] = np.nan
-        ax.plot(v[...,0], v[...,1], *args, **kwargs)
+        self.ax.plot(v[...,0], v[...,1], *args, **kwargs)
 
     def old_circles(self, vecs, thetas=None, *args, **kwargs):
         if thetas is None:
@@ -75,9 +82,8 @@ class Projection:
             v[~sel] = np.nan
             lines.append(v)
 
-        ax = self.get_ax(kwargs)
         from matplotlib.collections import LineCollection
-        ax.add_collection( LineCollection(lines, **kwargs) )
+        self.ax.add_collection( LineCollection(lines, **kwargs) )
 
     def points(self, vecs, *args, **kwargs):
         kwargs.setdefault("edgecolors", "none")
@@ -96,8 +102,7 @@ class Projection:
             if isinstance(v,np.ndarray):
                 kwargs[k] = v[sel]  
 
-        ax = self.get_ax(kwargs)
-        return ax.scatter(vecs[sel,0], vecs[sel,1], **kwargs)
+        return self.ax.scatter(vecs[sel,0], vecs[sel,1], **kwargs)
 
     def labels(self, vecs, labels=None, *args, **kwargs):
         vecs = np.asarray(vecs)
@@ -148,28 +153,31 @@ class Projection:
                     return
                 done.add(key)
 
-            ax = self.get_ax(kwargs)
-            return ax.text(v[...,0], v[...,1], s, *args, **kwargs)
+            return self.ax.text(v[...,0], v[...,1], s, *args, **kwargs)
         
 class Stereo(Projection):
+
+    def __init__(self, **kwargs):
+        Projection.__init__(self, **kwargs)
+        self.ax.axis('off')
+        self.equal_aspect(1.05) 
+
     def __call__(self, v):
         return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
 
 class ThreeD(Projection):
-    def get_ax(self, d):
+    def __init__(self, **kwargs):
         try:
-            return d.pop('ax')
+            self.ax = kwargs.pop('ax')
         except KeyError:
             from mpl_toolkits.mplot3d import Axes3D
-            return plt.gca(projection='3d')
-
+            self.ax = plt.gca(projection='3d')
+    
     def plot(self, v, *args, **kwargs):
-        ax = self.get_ax(kwargs)
-        return ax.plot(v[...,0], v[...,1], v[...,2], *args, **kwargs)
+        return self.ax.plot(v[...,0], v[...,1], v[...,2], *args, **kwargs)
 
     def text(self, v, l, *args, **kwargs):
-        ax = self.get_ax(kwargs)
-        return ax.text(v[...,0], v[...,1], v[...,2], l, *args, **kwargs)
+        return self.ax.text(v[...,0], v[...,1], v[...,2], l, *args, **kwargs)
 
     def points(self, vecs, **kwargs):
         kwargs.setdefault("edgecolors", "none")
@@ -179,8 +187,7 @@ class ThreeD(Projection):
             maxl = np.amax(lens)
             kwargs["s"] = np.interp(lens, [minl,maxl], [50, 5])
 
-        ax = self.get_ax(kwargs)
-        return ax.scatter(vecs[...,0], vecs[...,1], vecs[...,2], **kwargs)
+        return self.ax.scatter(vecs[...,0], vecs[...,1], vecs[...,2], **kwargs)
 
 class Flat(Projection):
     def __call__(self, v):

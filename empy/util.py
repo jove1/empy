@@ -32,13 +32,6 @@ def klen(U):
 
 
 
-def equal_aspect(size=None):
-    if size is not None:
-       plt.xlim(-size, size)   
-       plt.ylim(-size, size)   
-    plt.gca().set_aspect("equal")
-    #plt.axis("equal")
-
 def a4figure(orient="portrait"):
     if orient == "portrait":
         plt.figure(figsize=(8.27, 11.69), dpi=72)
