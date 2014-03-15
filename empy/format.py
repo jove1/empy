@@ -2,7 +2,7 @@
 def simple(v):
     return "{0:g}{1:g}{2:g}".format(*v)
 
-def latex(v):
+def tex(v):
     pos = "{:g}".format
     neg = r"\bar{{{:g}}}".format
     #neg = r"\overline{{{:g}}}".format
