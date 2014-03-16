@@ -218,7 +218,7 @@ class Laue(Projection):
     def __call__(self, v):
         # calculate wave vector (wavelength) that diffracts at each recip. space vector
         k = -vdot(v,v)/2./v[...,2]
-        return v[...,:2]/(k + v[...,2]), k<0 if self.direction == "back" else k>0
+        return v[...,:2]/(k + v[...,2])[...,np.newaxis], k<0 if self.direction == "back" else k>0
 
 class EDiff(Projection):
     pass
