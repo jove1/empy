@@ -222,12 +222,16 @@ class Laue(Projection):
 
     def __init__(self, **kwargs):
         Projection.__init__(self, **kwargs)
-        self.direction = kwargs.pop("direction", "back")
+        self.direction = kwargs.pop("dir", "back")
+        self.equal_aspect(1.5)
 
     def __call__(self, v):
         # calculate wave vector (wavelength) that diffracts at each recip. space vector
         k = -vdot(v,v)/2./v[...,2]
-        return v[...,:2]/(k + v[...,2])[...,np.newaxis], k<0 if self.direction == "back" else k>0
+        z = v[...,2] + k
+        if self.direction != "back":
+            z = -z
+        return v[...,:2]/z[...,np.newaxis], (z>0) & (k<0)
 
 class EDiff(Projection):
     pass
