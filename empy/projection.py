@@ -8,7 +8,7 @@ class Projection:
         try:
             self.ax = kwargs.pop('ax')
         except KeyError:
-            self.ax = plt.gca()
+            self.ax = plt.figure().gca()
 
         self.equal_aspect() 
 
@@ -175,7 +175,7 @@ class ThreeD(Projection):
             self.ax = kwargs.pop('ax')
         except KeyError:
             from mpl_toolkits.mplot3d import Axes3D
-            self.ax = plt.gca(projection='3d')
+            self.ax = plt.figure().gca(projection='3d')
     
     def plot(self, v, *args, **kwargs):
         return self.ax.plot(v[...,0], v[...,1], v[...,2], *args, **kwargs)
@@ -199,6 +199,15 @@ class Stereo(Projection):
         Projection.__init__(self, **kwargs)
         self.ax.axis('off')
         self.equal_aspect(1.05) 
+
+        if kwargs.pop('border', True):
+            phi = np.linspace(0,2*pi,500)
+            self.ax.plot(sin(phi),cos(phi),"k-",lw=2, zorder=0)
+            self.ax.plot([0,-1],[0,0],"k-", zorder=0)
+            self.ax.plot([0,0],[0,-1],"k-", zorder=0)
+            self.ax.plot([0,1],[0,0],"k-", zorder=0)
+            self.ax.plot([0,0],[0,1],"k-", zorder=0)
+
 
     def __call__(self, v):
         return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
