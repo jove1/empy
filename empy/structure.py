@@ -18,9 +18,9 @@ class Crystal:
             beta = kwargs.get("beta", 90)
             gamma = kwargs.get("gamma", 90)
         
-        Sa, Ca = sin(pi*alpha/180.), cos(pi*alpha/180.)
-        Sb, Cb = sin(pi*beta/180.), cos(pi*beta/180.)
-        Sg, Cg = sin(pi*gamma/180.), cos(pi*gamma/180.)
+        Sa, Ca = sin(deg2rad(alpha)), cos(deg2rad(alpha))
+        Sb, Cb = sin(deg2rad(beta)),  cos(deg2rad(beta))
+        Sg, Cg = sin(deg2rad(gamma)), cos(deg2rad(gamma))
         
         CY = (Ca - Cg*Cb)/Sg
         CZ = sqrt(1 - Cb**2 - CY**2)
@@ -91,7 +91,8 @@ class Crystal:
         
         lst = [ ((0,0,1), self.v(zone)) ]
         if vec is not None:
-            lst.append( ((cos(dir/180.*pi),sin(dir/180.*pi),0), self.q(vec)) )
+            dir = deg2rad(dir)
+            lst.append( ((cos(dir),sin(dir),0), self.q(vec)) )
        
         from .util import Orient
         return Orient.fit(lst)

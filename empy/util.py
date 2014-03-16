@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import numpy as np
+from numpy import pi, cos, sin, deg2rad, rad2deg
+
 from matplotlib import pyplot as plt
 
 def vdot(x, y):
@@ -8,7 +10,7 @@ def vdot(x, y):
     return np.einsum("...i,...i->...", x, y)
 
 def vangle(x,y):
-    return np.arccos(vdot(x,y)/vlen(x)/vlen(y))*180/np.pi
+    return rad2deg(np.arccos(vdot(x,y)/vlen(x)/vlen(y)))
 
 def vlen(x):
     return np.sqrt(vdot(x,x))
@@ -19,7 +21,6 @@ def vnorm(x):
 def allv(max=10):
     return np.mgrid[-max:max+1, -max:max+1, -max:max+1].reshape(3,-1).T
 
-from numpy import pi, cos, sin
 # http://physics.nist.gov/cgi-bin/cuu/Value?mec2mev
 m0 = 0.510998910e6 # eV/c^2
 # http://physics.nist.gov/cgi-bin/cuu/Value?hbcmevf
@@ -48,7 +49,7 @@ def tight_borders():
 
 
 def axis_rot(phi, axes=(0,1,2)):
-    phi = np.asarray(phi)/180.*pi
+    phi = deg2rad(phi)
     r = np.zeros(phi.shape + (3,3))
     a,b,c = axes
     r[...,a,a] = r[...,b,b] = cos(phi)
@@ -166,7 +167,7 @@ class Orient:
         import imp
         conf = imp.load_source("conf", fname)
         def tr(x):
-            phi, theta = x[0]/180*pi, x[1]/180*pi
+            phi, theta = map(deg2rad, x)
             return (cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta))
         import warnings
         warnings.warn("Assuming cubic crystal")
