@@ -2,7 +2,7 @@
 
 class Crystal:
     def __init__(self, **kwargs):
-        from numpy import sin, cos, pi, array, diag, sqrt
+        from numpy import sin, cos, pi, array, diag, sqrt, deg2rad
 
         self.sites = kwargs.get("sites", [])
 
@@ -85,7 +85,7 @@ class Crystal:
         return dot(hkl, 2 * pi * linalg.inv(self.basis).T)
     
     def orient(self, zone=None, vec=None, dir=0):
-        from numpy import sin, cos, pi
+        from numpy import sin, cos, pi, deg2rad
         if zone is None:
             zone, vec, dir = (0,0,1), (0,1,0), 0
         
