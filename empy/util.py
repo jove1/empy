@@ -21,6 +21,15 @@ def vnorm(x):
 def allv(max=10):
     return np.mgrid[-max:max+1, -max:max+1, -max:max+1].reshape(3,-1).T
 
+
+def equiv(hkl):
+    permutations = [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
+    signs = [(-1, -1, -1), (-1, -1, 1), (-1, 1, -1), (-1, 1, 1),
+             (1, -1, -1),  (1, -1, 1),  (1, 1, -1),  (1, 1, 1)]
+    return set( (sgn[0]*hkl[idx[0]], sgn[1]*hkl[idx[1]], sgn[2]*hkl[idx[2]])
+                for idx in permutations for sgn in signs )
+
+
 # http://physics.nist.gov/cgi-bin/cuu/Value?mec2mev
 m0 = 0.510998910e6 # eV/c^2
 # http://physics.nist.gov/cgi-bin/cuu/Value?hbcmevf
@@ -135,15 +144,6 @@ def vrgb(v):
     # due to this we don't have to take vnorm at the beginning
     rgb /= np.amax(rgb, axis=-1)[...,np.newaxis] 
     return rgb 
-
-vecs001 = [(1,0,0),(0,1,0),(0,0,1),(-1,0,0),(0,-1,0),(0,0,-1)]
-vecs011 = [(1,1,0),(1,0,1),(0,1,1),
-           (-1,1,0),(-1,0,1),(0,-1,1),
-           (1,-1,0),(1,0,-1),(0,1,-1),
-           (-1,-1,0),(-1,0,-1),(0,-1,-1)]
-vecs111 = [(1,1,1),(1,1,-1),(1,-1,1),(-1,1,1),
-           (-1,-1,-1),(-1,-1,1),(-1,1,-1),(1,-1,-1)]
-
 
 class Orient:
     def __init__(self, rotmatrix=None):
