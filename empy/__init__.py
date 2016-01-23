@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from util import *
-from projection import Stereo, ThreeD, Laue
-from holder import DoubleTilt, TiltRotation
+from projection import Stereo, ThreeD, Laue, Flat, Cut, Projection, Persp
+from holder import DoubleTilt, TiltRotation, DoubleTilt2
 import structure
 import format 
 
