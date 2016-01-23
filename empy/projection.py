@@ -3,14 +3,16 @@
 from .util import *
 
 class Projection:
-    
+    equal = True
+
     def __init__(self, **kwargs):
         try:
             self.ax = kwargs.pop('ax')
         except KeyError:
             self.ax = plt.figure().gca()
 
-        self.equal_aspect() 
+        if self.equal:
+            self.equal_aspect() 
 
     def equal_aspect(self, size=None):
         self.ax.set_aspect("equal")
@@ -69,16 +71,9 @@ class Projection:
     def _circles_linecollection(self, vecs, thetas=None, *args, **kwargs):
         if thetas is None:
             thetas = np.zeros(vecs.shape[:-1])
-       
-        try:
-            kwargs['colors'] = kwargs.pop("c")
-        except KeyError:
-            pass
-
-        try:
-            kwargs["linewidths"] = kwargs.pop("lw")
-        except KeyError:
-            pass
+        
+        kwalias(kwargs, 'colors', 'c')
+        kwalias(kwargs, 'linewidths', 'lw')
 
         if kwargs.get("linewidths", None) == "auto":
             lens = vlen(vecs)
@@ -99,7 +94,8 @@ class Projection:
         self.ax.add_collection( LineCollection(lines, **kwargs) )
 
     def points(self, vecs, *args, **kwargs):
-        kwargs.setdefault("edgecolors", "none")
+        if kwargs.get("marker","o") not in "+x,.|_":
+            kwargs.setdefault("edgecolors", "none")
         kwargs.setdefault("zorder", 3)
 
         if kwargs.get("s") == "auto":
@@ -122,6 +118,7 @@ class Projection:
         kwargs.setdefault("ha", "center")
         kwargs.setdefault("va", "bottom")
         kwargs.setdefault("clip_on", True)
+        kwalias(kwargs, 'color', 'c')
 
         import matplotlib.patheffects as PathEffects
         kwargs.setdefault("path_effects", [PathEffects.withStroke(linewidth=2, foreground="w")])
@@ -200,7 +197,8 @@ class Stereo(Projection):
         self.ax.axis('off')
         self.equal_aspect(1.05) 
 
-        if kwargs.pop('border', True):
+        border = kwargs.pop('border', 'full')
+        if border is True or border is 'full':
             phi = np.linspace(0,2*pi,500)
             self.ax.plot(sin(phi),cos(phi),"k-",lw=2, zorder=0)
             self.ax.plot([0,-1],[0,0],"k-", zorder=0)
@@ -208,15 +206,37 @@ class Stereo(Projection):
             self.ax.plot([0,1],[0,0],"k-", zorder=0)
             self.ax.plot([0,0],[0,1],"k-", zorder=0)
 
+        elif border is 'std':
+            a = np.linspace(0,1)[:,np.newaxis]
+            b = np.vstack([ a*[1,1,1]+(1-a)*[0,0,1], 
+                            a*[1,0,1]+(1-a)*[1,1,1], 
+                            a*[0,0,1]+(1-a)*[1,0,1] ])
+            self.plot(b, "k-", zorder=0)
+            self.ax.set_xlim(-0.05, 0.41421356+0.05)
+            self.ax.set_ylim(-0.05, 0.3660254+0.05)
+
+
 
     def __call__(self, v):
-        return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
+        v = np.asarray(v)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
 
+
+class Cut(Projection):
+
+    def __call__(self, v):
+        return v[...,:2], np.abs(v[...,2]) < 1e-5
 
 class Flat(Projection):
 
     def __call__(self, v):
-        return v[...,:2], np.abs(v[...,2]) < 1e-5
+        return v[...,:2], np.ones(v.shape[:-1], dtype=bool)
+
+    def __call__(self, v):
+        return v[...,:2], np.ones(v.shape[:-1], dtype=bool)
+
+
 
 class Laue(Projection):
 
@@ -233,7 +253,10 @@ class Laue(Projection):
             z = -z
         return v[...,:2]/z[...,np.newaxis], (z>0) & (k<0)
 
-class EDiff(Projection):
-    pass
-
+class Persp(Projection):
+    def __init__(self, **kwargs):
+        Projection.__init__(self, **kwargs)
+    
+    def __call__(self, v):
+        return v[...,:2]/v[...,2][...,np.newaxis], v[...,2] > 0
 
