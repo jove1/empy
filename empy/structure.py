@@ -74,16 +74,16 @@ class Crystal:
             r |= (abs(s) > 1e-10)
         return r
 
-    def v(self, hkl, rot=True):
+    def v(self, hkl):
         """miller index -> real space vector"""
         from numpy import dot
         return dot(hkl, self.basis)
 
-    def q(self, hkl, rot=True):
+    def q(self, hkl):
         """miller index -> reciprocal space vector"""
         from numpy import dot, linalg, pi
         return dot(hkl, 2 * pi * linalg.inv(self.basis).T)
-    
+
     def orient(self, zone=None, vec=None, dir=0):
         from numpy import sin, cos, pi, deg2rad
         if zone is None:
@@ -102,7 +102,10 @@ _fcc1 = [(.25,.25,.25), (.75,.75,.25), (.75,.25,.75), (.25,.75,.75)]
 _fcc2 = [(.5,.5,.5), (0,0,.5), (0,.5,0), (.5,0,0)]
 _fcc3 = [(.75,.75,.75), (.25,.25,.75), (.25,.75,.25), (.75,.25,.25)]
 
-def hcp(a, c, A="A"):
+def hcp(a, c=None, A="A"):
+    if c is None:
+        from math import sqrt
+        c = a*sqrt(8/3.)
     return Crystal(a=a, c=c, gamma=120, sites=[ (A, [(0,0,0), (2/3.,1/3.,1/2.)]) ])
 
 def sc(a, A="A"):
