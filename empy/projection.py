@@ -219,8 +219,9 @@ class Stereo(Projection):
 
     def __call__(self, v):
         v = np.asarray(v)
+        l = vlen(v)
         with np.errstate(invalid='ignore', divide='ignore'):
-            return v[...,:2]/(vlen(v) + v[...,2])[...,np.newaxis], v[...,2] > -1e-5
+            return v[...,:2]/(l + v[...,2])[...,np.newaxis], (v[...,2] > -1e-5) & (l>0)
 
 
 class Cut(Projection):
