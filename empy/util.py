@@ -33,10 +33,10 @@ def sym_expand(v, gen, prec=7):
     l = [v]
     seen = set()
     for v in l:
-        v = round(v[0] % 1, prec), round(v[1] % 1, prec), round(v[2] % 1, prec)
-        if v in seen:
+        u = round(v[0] % 1, prec), round(v[1] % 1, prec), round(v[2] % 1, prec)
+        if u in seen:
             continue
-        seen.add(v)
+        seen.add(u)
         l.extend(gen(*v))
     return list(seen)
 
@@ -294,15 +294,20 @@ def load_kik_file(arg):
     else:
         conf = load_conf(arg)
 
-    import warnings
-    warnings.warn("Assuming cubic crystal in load_kik_file")
+    s = conf.get("s")
+    if s is None:
+        import Structure
+        s = Structure.bcc(0.29)
+        import warnings
+        warnings.warn("Assuming cubic crystal in load_kik_file")
+
     def tr(x):
         if len(x) == 2:
             phi, theta = map(deg2rad, x)
             return (cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta))
         else:
             return x
-    return Orient.fit([ (tr(a), b) for a,b in conf.measurements if None not in (a,b)])
+    return Orient.fit([ (tr(a), s.q(b)) for a,b in conf.measurements if None not in (a,b)])
 
     #data = [ (tr(a), b) for a,b in conf.measurements if None not in (a,b)]
     #r = Orient.fit(data)

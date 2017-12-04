@@ -56,8 +56,6 @@ class DoubleTilt(Holder):
         R1 = axis_rot(np.asarray(phi), (2,1,0))
         R2 = axis_rot(np.asarray(theta), (0,2,1))
         return np.einsum("...ij,...jk->...ik", R2, R1)
-        #R3 = axis_rot(-12., (0,1,2))
-        #return np.einsum("...hi,...ij,...jk,...kl->...hl", R3, R2, R1, R3.T)
     
     maxphi = 40
     maxtheta = 30

@@ -94,7 +94,7 @@ class Projection:
         self.ax.add_collection( LineCollection(lines, **kwargs) )
 
     def points(self, vecs, *args, **kwargs):
-        if kwargs.get("marker","o") not in "+x,.|_":
+        if kwargs.get("marker","o") not in list("+x,.|_"):
             kwargs.setdefault("edgecolors", "none")
         kwargs.setdefault("zorder", 3)
 
@@ -232,11 +232,6 @@ class Flat(Projection):
 
     def __call__(self, v):
         return v[...,:2], np.ones(v.shape[:-1], dtype=bool)
-
-    def __call__(self, v):
-        return v[...,:2], np.ones(v.shape[:-1], dtype=bool)
-
-
 
 class Laue(Projection):
 
