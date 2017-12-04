@@ -5,6 +5,8 @@ def simple(v):
 def simple_hex(v):
     return "{0:g}{1:g}.{2:g}".format(*v)
 
+def simple_hex4(v):
+    return "{0:g}{1:g}{2:g}{3:g}".format(*v)
 
 def tex(v):
     pos = "{:g}".format
@@ -17,6 +19,12 @@ def tex_hex(v):
     neg = r"\bar{{{:g}}}".format
     #neg = r"\overline{{{:g}}}".format
     return "$\mathregular{{{0}{1}.{2}}}$".format(*[neg(-x) if x<0 else pos(x) for x in v])
+
+def tex_hex4(v):
+    pos = "{:g}".format
+    neg = r"\bar{{{:g}}}".format
+    #neg = r"\overline{{{:g}}}".format
+    return "$\mathregular{{{0}{1}{2}{3}}}$".format(*[neg(-x) if x<0 else pos(x) for x in v])
 
 def html(v):
     pos = "{:g}".format
