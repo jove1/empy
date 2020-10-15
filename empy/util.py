@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import numpy as np
 from numpy import pi, cos, sin, deg2rad, rad2deg, cross, exp, sqrt, array, newaxis, linspace, dot, nan, log, abs, hypot
@@ -139,8 +138,10 @@ def circle(v, b=0, npoints=500):
 
     r2, r3 = vlen(v[:2]), vlen(v)
     
+    old = np.seterr(invalid='ignore')
     cp, sp = v[0]/r2, v[1]/r2
     st, ct = r2/r3, v[2]/r3
+    np.seterr(**old)
 
     def rot(c,s,x,y):
         return c*x-s*y, s*x+c*y
@@ -249,8 +250,8 @@ class Orient:
     def std():
         return Orient([[0,-1,0],[1,0,0],[0,0,1]])
 
-import format as _format
-def orient_plot(p, o, c="k", max=2, format=_format.simple, ls="-"):
+from .format import simple as _simple
+def orient_plot(p, o, c="k", max=2, format=_simple, ls="-"):
     v = equiv([0,0,1],[0,1,1])
     p.circles(o(v), c=c, ls=ls)
 
@@ -333,7 +334,7 @@ def load_laue_file(fname):
             spots.append(ll)
     
     if not dirs:
-        raise ValueError, ("No indexing info in laue file.", fname)
+        raise ValueError("No indexing info in laue file: {}".format(fname))
     
     import warnings
     warnings.warn("Assuming cubic crystal in load_laue_file")

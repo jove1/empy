@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 from .util import *
 from .projection import Stereo
@@ -71,8 +70,8 @@ class DoubleTilt(Holder):
         proj.plot(self(phi, maxtheta), "k-", lw=2)
         proj.plot(self(phi, -maxtheta), "k-", lw=2)
 
-        theta = np.linspace(0, maxtheta, self.npoints/2)
-        phi = np.linspace(0, maxphi, self.npoints/2)
+        theta = np.linspace(0, maxtheta, self.npoints//2)
+        phi = np.linspace(0, maxphi, self.npoints//2)
  
         proj.plot(self(0, theta), "k--", lw=2)
         proj.plot(self(0, -theta), "k--", lw=2)

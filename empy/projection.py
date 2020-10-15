@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 from .util import *
 
@@ -56,16 +55,10 @@ class Projection:
             if isinstance(v, np.ndarray):
                 keys.append(k)
                 values.append(v)
-                del kwargs[k]
         ret = []
-        for values in zip(vecs, thetas, *values):
-            v,t = values[:2]
-            if keys:
-                kwargs2 = dict(zip(keys, values[2:]))
-                kwargs2.update(kwargs)
-            else:
-                kwargs2 = kwargs
-            ret.extend( self.plot( circle(v,t), **kwargs2) )
+        for v, t, *values in zip(vecs, thetas, *values):
+            kwargs.update(zip(keys, values))
+            ret.extend( self.plot( circle(v,t), **kwargs) )
         return ret
 
     def _circles_linecollection(self, vecs, thetas=None, *args, **kwargs):
@@ -129,7 +122,7 @@ class Projection:
             labels = [labels(v) for v in vecs]
 
         order = np.argsort(vlen(vecs))
-        labels = np.asarray(labels)
+        labels = np.asarray(list(labels))
 
         keys = []
         values = []
@@ -137,18 +130,11 @@ class Projection:
             if isinstance(v, np.ndarray):
                 keys.append(k)
                 values.append(v[order])
-                del kwargs[k]
         
         done = set()  
-        for values in zip(vecs[order], labels[order], *values):
-            v, l = values[:2]
-            if keys:
-                kwargs2 = dict(zip(keys, values[2:]))
-                kwargs2.update(kwargs)
-            else:
-                kwargs2 = kwargs
-
-            self.text(v, l, done=done, **kwargs2)
+        for v, l, *values in zip(vecs[order], labels[order], *values):
+            kwargs.update(zip(keys, values))
+            self.text(v, l, done=done, **kwargs)
 
     def text(self, v, s, *args, **kwargs):
         v, sel = self(v)
