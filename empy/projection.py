@@ -28,8 +28,7 @@ class Projection:
         kwargs.setdefault("lw","auto")
         kwargs.setdefault("c","c")
         Uacc = kwargs.pop("Uacc", getattr(self, "Uacc", 200e3))
-        from numpy import arcsin
-        return self.circles(vecs, arcsin(vlen(vecs)/2/klen(Uacc)), *args, **kwargs)
+        return self.circles(vecs, np.arcsin(vlen(vecs)/2/klen(Uacc)), *args, **kwargs)
     
     def circles(self, vecs, thetas=None, *args, **kwargs):
         return self._circles_line2d(vecs, thetas, *args, **kwargs)

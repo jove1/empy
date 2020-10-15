@@ -134,14 +134,11 @@ def axis_rot(phi, axes=(0,1,2)):
     return r
 
 def circle(v, b=0, npoints=500):
-    from numpy import linspace, transpose
-
     r2, r3 = vlen(v[:2]), vlen(v)
     
-    old = np.seterr(invalid='ignore')
-    cp, sp = v[0]/r2, v[1]/r2
-    st, ct = r2/r3, v[2]/r3
-    np.seterr(**old)
+    with np.errstate(invalid='ignore'):
+        cp, sp = v[0]/r2, v[1]/r2
+        st, ct = r2/r3, v[2]/r3
 
     def rot(c,s,x,y):
         return c*x-s*y, s*x+c*y
@@ -155,7 +152,7 @@ def circle(v, b=0, npoints=500):
     x,z = rot(ct, st, x, z)    
     x,y = rot(-cp, -sp, x, y)
 
-    return transpose([x,y,z])
+    return np.transpose([x,y,z])
 
 def quat2rot(v):
     r = np.outer(v, v)
