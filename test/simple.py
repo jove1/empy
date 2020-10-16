@@ -11,6 +11,5 @@ p.points(o(v), c="r")
 p.labels(o(v), map(format.tex, v))
 p.circles(o(equiv([0,0,1],[1,1,0])), c="r")
 
-plt.savefig("simple.pdf")
 plt.show()
 

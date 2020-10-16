@@ -37,21 +37,6 @@ def make_basis(**kwargs):
 
 class Structure:
 
-    @classmethod
-    def fcc(cls, a, A='A'):
-        return cls( np.diag([a,a,a]), sites=[(A, [(0,0,0),(.5,.5,0),(.5,0,.5),(0,.5,.5)])])
-
-    @classmethod
-    def bcc(cls, a, A='A'):
-        return cls( np.diag([a,a,a]), sites=[(A, [(0,0,0),(.5,.5,.5)])])
-
-    @classmethod
-    def hcp(cls, a, c=None, A='A'):
-        c = a*sqrt(8/3.) if c is None else c
-        return cls( array([[.5*a, -sqrt(3/4.)*a, 0],
-                           [.5*a, +sqrt(3/4.)*a, 0],
-                           [   0,     0,         c]]), sites=[(A, [(0,0,0), (2/3.,1/3.,1/2.)]) ])
-
     def __init__(self, basis, sites, sym=None):
         self.basis = basis
         self.sites = [ (e,sym_expand(v,sym)) for e,v in sites ] if sym else sites
@@ -139,91 +124,6 @@ class Structure:
                 plt.plot(v[:,p],v[:,q])
         plt.tight_layout()
 
-
-class Crystal:
-    def __init__(self, **kwargs):
-        from numpy import sin, cos, pi, array, diag, sqrt, deg2rad
-
-        self.sites = kwargs.get("sites", [])
-
-        a = kwargs.get("a")
-        b = kwargs.get("b", a)
-        c = kwargs.get("c", a)
-
-        alpha = kwargs.get("alpha", 90)
-        if a == b == c:
-            beta = kwargs.get("beta", alpha)
-            gamma = kwargs.get("gamma", alpha)
-        else:
-            beta = kwargs.get("beta", 90)
-            gamma = kwargs.get("gamma", 90)
-        
-        Sa, Ca = sin(deg2rad(alpha)), cos(deg2rad(alpha))
-        Sb, Cb = sin(deg2rad(beta)),  cos(deg2rad(beta))
-        Sg, Cg = sin(deg2rad(gamma)), cos(deg2rad(gamma))
-        
-        CY = (Ca - Cg*Cb)/Sg
-        CZ = sqrt(1 - Cb**2 - CY**2)
-        
-        self.system = "triclinic"
-        self.basis = array([[  a,       0, 0],
-                            [  b*Cg, b*Sg, 0],
-                            [  c*Cb, c*CY, c*CZ]])
-        
-        if alpha == beta == gamma == 90:
-            if a == b == c:
-                self.system = "cubic"
-            elif a == b or b == c or c == a:
-                self.system = "tetragonal"
-            else:
-                self.system = "orthorhombic"
-            self.basis = diag([a,b,c])
-        
-        elif alpha == beta == 90 and a==b and  gamma == 120:
-            self.system = "hexagonal"
-            self.basis = array([[-Cg*a, -Sg*a, 0],
-                                [-Cg*b, +Sg*b, 0],
-                                [    0,     0, c]])
-
-        elif beta == gamma == 90 and b==c and  alpha == 120:
-            self.system = "hexagonal"
-            self.basis = array([[    0,     0, a],
-                                [-Ca*b, -Sa*b, 0],
-                                [-Ca*c, +Sa*c, 0]])
-        
-        elif gamma == alpha == 90 and c==a and  beta == 120:
-            self.system = "hexagonal"
-            self.basis = array([[-Cb*a, +Sb*a, 0],
-                                [    0,     0, b],
-                                [-Cb*c, -Sb*c, 0]])
-        
-        elif beta == gamma == 90  or alpha == gamma == 90 or alpha == beta == 90:
-            self.system = "monoclinic"
-        
-        elif a == b == c and alpha == beta == gamma:
-            # is there a special symetric basis in this case?
-            self.system = "trigonal"
-
-    def hkl_allowed(self, hkl):
-        """return a mask of allowed reflections"""
-        from numpy import zeros, sum, exp, pi, inner, abs, asarray
-        hkl = asarray(hkl)
-        r = zeros(hkl.shape[:-1], dtype=bool)
-        for atom,site in self.sites:
-            s = sum( exp( -2j*pi * inner(hkl, site) ), axis=-1)
-            r |= (abs(s) > 1e-10)
-        return r
-
-    def v(self, hkl):
-        """miller index -> real space vector"""
-        from numpy import dot
-        return dot(hkl, self.basis)
-
-    def q(self, hkl):
-        """miller index -> reciprocal space vector"""
-        from numpy import dot, linalg, pi
-        return dot(hkl, 2 * pi * linalg.inv(self.basis).T)
-
     def orient(self, zone=None, vec=None, dir=0):
         from numpy import sin, cos, pi, deg2rad
         if zone is None:
@@ -242,20 +142,25 @@ _fcc1 = [(.25,.25,.25), (.75,.75,.25), (.75,.25,.75), (.25,.75,.75)]
 _fcc2 = [(.5,.5,.5), (0,0,.5), (0,.5,0), (.5,0,0)]
 _fcc3 = [(.75,.75,.75), (.25,.25,.75), (.25,.75,.25), (.75,.25,.25)]
 
-def hcp(a, c=None, A="A"):
+def fcc(a, A='A'):
+    return Structure( np.diag([a,a,a]), sites=[(A, _fcc0)])
+
+def bcc(a, A='A'):
+    return Structure( np.diag([a,a,a]), sites=[(A, [(0,0,0),(.5,.5,.5)])])
+
+def hcp(a, c=None, A='A'):
     if c is None:
-        from math import sqrt
         c = a*sqrt(8/3.)
-    return Crystal(a=a, c=c, gamma=120, sites=[ (A, [(0,0,0), (2/3.,1/3.,1/2.)]) ])
+    return Structure( 
+            array([[.5*a, -sqrt(3/4.)*a, 0],
+                   [.5*a, +sqrt(3/4.)*a, 0],
+                   [   0,     0,         c]]), sites=[(A, [(0,0,0), (2/3.,1/3.,1/2.)]) ])
 
 def sc(a, A="A"):
-    return Crystal(a=a, sites=[ (A, [(0,0,0)]) ])
+    return Structure( np.diag([a,a,a]), sites=[ (A, [(0,0,0)]) ])
 
-def fcc(a, A="A"):
-    return Crystal(a=a, sites=[ (A, _fcc0) ])
 
-def bcc(a, A="A"):
-    return Crystal(a=a, sites=[ (A, [(0,0,0), (.5,.5,.5)]) ])
+"""
 
 def diamond(a, A="A"):
     return Crystal(a=a, sites=[ (A, _fcc0+_fcc1) ])
@@ -326,4 +231,4 @@ B3 = ZnS
 C1 = fluorite
 C1b = half_heusler
 L21 = heusler
-
+"""

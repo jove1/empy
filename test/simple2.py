@@ -13,5 +13,4 @@ v = v[s.hkl_allowed(v)]
 vv = oo(s.q(v))
 p.points(vv, s='auto')
 p.labels(vv, map(format.simple, v))
-plt.savefig("simple2.pdf")
 plt.show()

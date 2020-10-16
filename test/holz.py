@@ -17,14 +17,14 @@ vv = o(s.q(v))
 ee = ex_error(vv)
 
 xi = 70
-m = 1/hypot(1,ee*xi/2/pi) > 0.01
+m = 1/hypot(1,ee*xi) > 0.01
 p = Flat()
 #p = ThreeD()
 
 p.points(vv[m], 
         c=lz[m],
         #c='k', 
-        s=40/hypot(1,ee*xi/2/pi)[m]
+        s=40/hypot(1,ee*xi)[m]
     )
 plt.grid()
 
@@ -37,15 +37,15 @@ lz = dot(v,[1,1,0])
 vv = o(s.q(v))
 ee = ex_error(vv)
 xi = 7
-m = 1/hypot(1,ee*xi/2/pi) > 0.01
+m = 1/hypot(1,ee*xi) > 0.01
 m &= abs(lz) <= 1
 
 p = Flat()
 p.points(vv[m],
         c=lz[m],
-        s=40/hypot(1,ee*xi/2/pi)[m]
+        s=40/hypot(1,ee*xi)[m]
     ) 
-p.equal_aspect(200)
+p.equal_aspect(35)
 
 
 # Hirsh example p. 115
@@ -67,7 +67,7 @@ plt.title("Hirsh example p.115")
 p.points(vv[m], c=lz[m])
 p.labels(vv[m], map(format.simple, v[m]))
 p.points(o(s.q([[-2,-1,5]]))/3., c="c")
-p.equal_aspect(120)
+p.equal_aspect(25)
 
 
 plt.show()

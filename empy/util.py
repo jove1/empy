@@ -48,6 +48,18 @@ def equiv(*hkls):
                 for sgn in signs 
                 for hkl in hkls))
 
+def hex34v(hkl):
+    h,k,l = np.asarray(hkl).T
+    hkl4 = np.column_stack([2*h-k, 2*k-h, -(h+k), 3*l])
+    hkl4 //= np.gcd.reduce(hkl4, axis=-1, keepdims=True)
+    return hkl4
+
+def hex43v(hkil):
+    h,k,i,l = np.asarray(hkil).T
+    hkl3 = np.column_stack([h-i, k-i, l])
+    hkl3 //= np.gcd.reduce(hkl3, axis=-1, keepdims=True)
+    return hkl3
+
 def normhkl(hkl):
     return np.sort(abs(hkl), axis=-1)
 
@@ -78,7 +90,7 @@ hbar = 197.3269 # MeV.fm/c = eV.nm/c
 
 def klen(U):
     """length of kvector of relativistic electron"""
-    return np.sqrt(U*(U + 2*m0))/hbar
+    return np.sqrt(U*(U + 2*m0))/hbar/2/pi
 
 def ex_error(g, k=[0,0,klen(200e3)], n=[0,0,1]):
     n = np.asarray(n)

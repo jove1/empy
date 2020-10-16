@@ -3,7 +3,7 @@
 from empy import *
 phase = structure.hcp(0.323,0.514)
 hkl = maxhkl(10)
-hklq = hkl[(vlen(phase.q(hkl))<66) & phase.hkl_allowed(hkl)]
+hklq = hkl[(vlen(phase.q(hkl))<10) & phase.hkl_allowed(hkl)]
 hklv = hkl[vlen(phase.v(hkl))<1.0]
 
 o = phase.orient([1,0,1],[0,1,0],90)
